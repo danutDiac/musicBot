@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "@discordjs/opus": "^0.6.0",
     "discord.js": "^12.3.1",
