@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "yarn"
   },
   "dependencies": {
     "@discordjs/opus": "^0.6.0",
