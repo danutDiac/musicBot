@@ -12,6 +12,7 @@
     "node-mpv": "^1.5.0",
     "nodemon": "^2.0.12",
     "opusscript": "^0.0.7",
-    "ytdl-core": "^4.9.1"
+    "ytdl-core": "^4.9.1",
+    "ytpl": "^2.2.3"
   }
 }
