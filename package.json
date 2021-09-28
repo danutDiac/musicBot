@@ -3,6 +3,9 @@
     "start": "node index.js",
     "build": "yarn"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "dependencies": {
     "@discordjs/opus": "^0.6.0",
     "@discordjs/rest": "^0.1.0-canary.0",
