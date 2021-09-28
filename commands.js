@@ -1,5 +1,8 @@
 const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+const {variables: { application_id, server_id, bot_secret_token }} = require('./init')
 
 const MAX_LIST_LEGTH = 13
 const globalStore = {
@@ -36,22 +39,41 @@ const COMANDS = [{
     exec: listCurrentSongs
   },
   {
+    name: 'zăpăceste-le',
+    description: `Le tulbur puțin. O să iasă în altă ordine.`,
+    exec: shuffleSongs
+  },
+  {
     name: 'pleacă',
     description: 'Plec',
     exec: disconnect
   },
 ]
 
-
-async function interpretMessage(message) {
-  if (!message.guild) return;
-
+async function updateGlobalStore(message) {
   if (message.member.voice.channel) {
-      globalStore.channel = await message.member.voice.channel
+    globalStore.channel = await message.member.voice.channel
   } else {
       return message.reply('You need to join a voice channel to use this bot!');
   }
   globalStore.message = message
+}
+
+async function interpretInteraction(interaction) {
+  if (!interaction.isCommand()) return;
+
+  await updateGlobalStore(interaction)
+
+  const currentInteraction = COMANDS.find(command => command.name === interaction.commandName)
+  console.log(`currentInteraction: ${currentInteraction}`)
+  if (currentInteraction) {
+    currentInteraction.exec()
+  }
+}
+
+async function interpretMessage(message) {
+  if (!message.guild) return;
+  await updateGlobalStore(message)
 
   COMANDS.forEach(async function (command) {
     if (message.content.includes(command.name)) {
@@ -124,6 +146,42 @@ async function disconnect() {
   return globalStore.channel.leave()
 }
 
+const rest = new REST({ version: '9' }).setToken(bot_secret_token);
+
+async function registerCommands () {
+  try {
+    await rest.put(
+      Routes.applicationGuildCommands(application_id, server_id),
+      { body: COMANDS },
+    );
+
+    console.log('Successfully reloaded application (/) commands.');
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function shuffleSongs() {
+  shuffle(globalStore.items)
+}
+
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  while (currentIndex != 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
+
 module.exports = {
-  interpretMessage
+  interpretMessage,
+  registerCommands,
+  interpretInteraction
 }
