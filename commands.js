@@ -1,7 +1,5 @@
 const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
 const {variables: { application_id, server_id, bot_secret_token }} = require('./init')
 
 const MAX_LIST_LEGTH = 13
@@ -146,21 +144,6 @@ async function disconnect() {
   return globalStore.channel.leave()
 }
 
-const rest = new REST({ version: '9' }).setToken(bot_secret_token);
-
-async function registerCommands () {
-  try {
-    await rest.put(
-      Routes.applicationGuildCommands(application_id, server_id),
-      { body: COMANDS },
-    );
-
-    console.log('Successfully reloaded application (/) commands.');
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 function shuffleSongs() {
   shuffle(globalStore.items)
 }
@@ -182,6 +165,5 @@ function shuffle(array) {
 
 module.exports = {
   interpretMessage,
-  registerCommands,
   interpretInteraction
 }
