@@ -1,6 +1,6 @@
 const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
-const {variables: { application_id, server_id, bot_secret_token }} = require('./init')
+const {variables: { application_id }} = require('./init')
 
 const MAX_LIST_LEGTH = 13
 const globalStore = {
@@ -59,6 +59,7 @@ async function updateGlobalStore(message) {
 
 async function interpretMessage(message) {
   if (!message.guild) return;
+  if (message.member.id === application_id) return
 
   COMANDS.forEach(async function (command) {
     if (message.content.indexOf(command.name) > -1 && message.content.indexOf(command.name) < 2 ) {
