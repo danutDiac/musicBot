@@ -57,24 +57,12 @@ async function updateGlobalStore(message) {
   globalStore.message = message
 }
 
-async function interpretInteraction(interaction) {
-  if (!interaction.isCommand()) return;
-
-  await updateGlobalStore(interaction)
-
-  const currentInteraction = COMANDS.find(command => command.name === interaction.commandName)
-  console.log(`currentInteraction: ${currentInteraction}`)
-  if (currentInteraction) {
-    currentInteraction.exec()
-  }
-}
-
 async function interpretMessage(message) {
   if (!message.guild) return;
-  await updateGlobalStore(message)
 
   COMANDS.forEach(async function (command) {
-    if (message.content.includes(command.name)) {
+    if (message.content.indexOf(command.name) > -1 && message.content.indexOf(command.name) < 2 ) {
+      await updateGlobalStore(message)
       await command.exec()
     }  
   })
@@ -130,9 +118,10 @@ async function recurrentPlayItems() {
   const dispatcher = await globalStore.connection.play(ytdl(globalStore.items[0].url), {
       volume: 0.5,
   });
+  globalStore.items.splice(0, 1)
+  
   dispatcher.on('finish', async () => {
-      if (globalStore.items.length > 1) {
-          globalStore.items.splice(0, 1)
+      if (globalStore.items.length > 0) {
           return recurrentPlayItems()
       }
 
@@ -164,6 +153,5 @@ function shuffle(array) {
 
 
 module.exports = {
-  interpretMessage,
-  interpretInteraction
+  interpretMessage
 }
