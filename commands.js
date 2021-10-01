@@ -3,18 +3,19 @@ const ytpl = require('ytpl');
 const {variables: { application_id }} = require('./init')
 
 const MAX_LIST_LEGTH = 13
-const globalStore = {
+const defaultStoreValues = {
   items: [],
   connection: null,
   message: null,
   channel: null
 }
-
+let globalStore = defaultStoreValues
 
 const COMANDS = [{
     name: 'hai',
     description: 'Vin unde ești tu.',
-    exec: joinChannel
+    exec: joinChannel,
+    reply: 'Gata, zi-mi.'
   },
   {
     name: 'cântă',
@@ -29,22 +30,32 @@ const COMANDS = [{
   {
     name: 'alta',
     description: 'Opresc cântarea curentă, pentru una mai bună.',
-    exec: playNext
+    exec: playNext,
+    reply: 'Ia-o pe asta, poate-i mai bună.'
   },
   {
     name: 'listează',
     description: `Ițî arăt următoarele ${MAX_LIST_LEGTH} melodii din listă.`,
-    exec: listCurrentSongs
+    exec: listCurrentSongs,
+    reply: 'Cam astea-s. Mai pot să le mix puțin. Scrie "zăpăcește-le" și se face.'
   },
   {
     name: 'zăpăceste-le',
     description: `Le tulbur puțin. O să iasă în altă ordine.`,
-    exec: shuffleSongs
+    exec: shuffleSongs,
+    reply: 'Gata, le-am zăpăcit de le-a luat .. sunt în alta ordine acum.'
   },
   {
     name: 'pleacă',
     description: 'Plec',
-    exec: disconnect
+    exec: disconnect,
+    reply: 'Hai pa.'
+  },
+  {
+    name: 'restart',
+    description: 'O iau de la zero: fără melodii, fără canal de voce, nimic în memorie, doar comenzile le mai știu.',
+    exec: reset,
+    reply: 'Gata, mi-am revenit. Dă o comandă să vedem.'
   },
 ]
 
@@ -52,7 +63,7 @@ async function updateGlobalStore(message) {
   if (message.member.voice.channel) {
     globalStore.channel = await message.member.voice.channel
   } else {
-      return message.reply('You need to join a voice channel to use this bot!');
+      return message.reply('Trebuie să fii intr-un canal sonor ca să folosesti comenzile!');
   }
   globalStore.message = message
 }
@@ -65,6 +76,10 @@ async function interpretMessage(message) {
     if (message.content.indexOf(command.name) > -1 && message.content.indexOf(command.name) < 2 ) {
       await updateGlobalStore(message)
       await command.exec()
+
+      if (command.reply) {
+        message.channel.send(command.reply)
+      }
     }  
   })
 }
@@ -94,14 +109,16 @@ async function play() {
 }
 
 async function listCurrentSongs() {
-  const songs = globalStore.items.slice(0, MAX_LIST_LEGTH).map(song => song.title)
-  await globalStore.message.reply(songs.join('\n'))
+  const shortList = globalStore.items.slice(0, MAX_LIST_LEGTH)
+  const songs = shortList.map(song => song.title)
+  await globalStore.message.reply(`Iată ce va urma:\n${songs.join('\n')}`)
 }
 
 async function playPlaylist({playlistUrl}) {
   try {
-      let list = await ytpl(playlistUrl, { pages: 100 });
+      let list = await ytpl(playlistUrl, { pages: 1 });
 
+      console.log(list.items.map(item => `${item.title} ${item.url}`))
       console.log(`Loaded ${list.items.length} items`)
       globalStore.items = list.items
       await recurrentPlayItems()
@@ -116,9 +133,11 @@ async function recurrentPlayItems() {
       return
   }
 
-  const dispatcher = await globalStore.connection.play(ytdl(globalStore.items[0].url), {
+  const nextSong = globalStore.items[0]
+  const dispatcher = await globalStore.connection.play(ytdl(nextSong.url), {
       volume: 0.5,
   });
+  globalStore.message.channel.send(`Se cantă ${nextSong.title}`)
   globalStore.items.splice(0, 1)
   
   dispatcher.on('finish', async () => {
@@ -152,6 +171,10 @@ function shuffle(array) {
   return array;
 }
 
+async function reset() {
+  await disconnect()
+  globalStore = defaultStoreValues
+}
 
 module.exports = {
   interpretMessage
