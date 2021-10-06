@@ -37,7 +37,8 @@ const COMANDS = [{
     name: 'listează',
     description: `Ițî arăt următoarele ${MAX_LIST_LEGTH} melodii din listă.`,
     exec: listCurrentSongs,
-    reply: 'Cam astea-s. Mai pot să le mix puțin. Scrie "zăpăcește-le" și se face.'
+    reply: 'Cam astea-s. Mai pot să le mix puțin. Scrie "zăpăcește-le" și se face.',
+    replyCondition: globalStore.items > 0,
   },
   {
     name: 'zăpăceste-le',
@@ -77,7 +78,7 @@ async function interpretMessage(message) {
       await updateGlobalStore(message)
       await command.exec()
 
-      if (command.reply) {
+      if (command.reply && command.replyCondition) {
         message.channel.send(command.reply)
       }
     }  
