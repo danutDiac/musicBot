@@ -109,6 +109,10 @@ async function play() {
 }
 
 async function listCurrentSongs() {
+  if (globalStore.items.length === 0) {
+    return globalStore.message.reply('Nu mai sunt melodii de cântat. Propune tu ceva')
+  }
+
   const shortList = globalStore.items.slice(0, MAX_LIST_LEGTH)
   const songs = shortList.map(song => song.title)
   await globalStore.message.reply(`Iată ce va urma:\n${songs.join('\n')}`)
