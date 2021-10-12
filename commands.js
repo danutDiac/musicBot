@@ -58,6 +58,11 @@ const COMANDS = [{
     exec: reset,
     reply: 'Gata, mi-am revenit. Dă o comandă să vedem.'
   },
+  {
+    name: 'comenzi',
+    description: 'Îți zic ce știu sa fac. Cu subiect si predicat.',
+    exec: listCommands
+  },
 ]
 
 async function updateGlobalStore(message) {
@@ -179,6 +184,14 @@ function shuffle(array) {
 async function reset() {
   await disconnect()
   globalStore = defaultStoreValues
+}
+
+async function listCommands() {
+  let commandsList = 'Iată ce-mi poate mintea... adică, codul:'
+  COMANDS.forEach(command => {
+    commandsList = `${commandsList}\n\`${command.name}\` : ${command.description}`
+  })
+  globalStore.message.channel.send(commandsList)
 }
 
 module.exports = {
