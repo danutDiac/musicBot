@@ -7,7 +7,8 @@ const defaultStoreValues = {
   items: [],
   connection: null,
   message: null,
-  channel: null
+  channel: null,
+  lastSongMessage: null,
 }
 let globalStore = defaultStoreValues
 
@@ -147,7 +148,7 @@ async function recurrentPlayItems() {
   const dispatcher = await globalStore.connection.play(ytdl(nextSong.url), {
       volume: 0.5,
   });
-  globalStore.message.channel.send(`Se cantă ${nextSong.title}`)
+  await writeSongDetails(nextSong.title)
   globalStore.items.splice(0, 1)
   
   dispatcher.on('finish', async () => {
@@ -157,6 +158,14 @@ async function recurrentPlayItems() {
 
       globalStore.connection.leave()
   });
+}
+
+async function writeSongDetails(details) {
+  if (globalStore.lastSongMessage) {
+    await globalStore.lastSongMessage.delete()
+  }
+  
+  globalStore.lastSongMessage = await globalStore.message.channel.send(`Se cantă ${details}`)
 }
 
 async function disconnect() {
