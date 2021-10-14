@@ -145,7 +145,8 @@ async function recurrentPlayItems() {
   }
 
   const nextSong = globalStore.items[0]
-  const dispatcher = await globalStore.connection.play(ytdl(nextSong.url, {filter: format => format.audioBitrate < 100}), {
+  const songURL = nextSong.url.replace(/&list.*/, '')
+  const dispatcher = await globalStore.connection.play(ytdl(songURL, {filter: format => format.audioBitrate < 100}), {
       volume: 0.5,
   });
   await writeSongDetails(nextSong.title)
