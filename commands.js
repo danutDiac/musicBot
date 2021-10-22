@@ -146,9 +146,19 @@ async function recurrentPlayItems() {
 
   const nextSong = globalStore.items[0]
   const songURL = nextSong.url.replace(/&list.*/, '')
-  const dispatcher = await globalStore.connection.play(ytdl(songURL, {filter: format => format.audioBitrate < 100}), {
+
+  const filterOptions = {
+    opusEncoded: true,
+    encoderArgs: ["-af", "bass=g=10,dynaudnorm=f=200"],
+    filter: "audioonly",
+    quality: "highestaudio",
+    isHLS: true,
+  }
+
+  const dispatcher = await globalStore.connection.play(ytdl(songURL, filterOptions), {
       volume: 0.5,
   });
+  
   await writeSongDetails(nextSong.title)
   globalStore.items.splice(0, 1)
   
@@ -159,6 +169,19 @@ async function recurrentPlayItems() {
 
       globalStore.connection.leave()
   });
+}
+
+async function handleSongPlay(songUrl) {
+  const info = await ytdl.getInfo(songUrl);
+  console.log('formats', info.formats)
+  const format = ytdl.chooseFormat(info.formats, {
+    filter: "audioonly",
+    quality: "highestaudio",
+  });
+  
+  
+  opus.pipe(dispatcher);
+  return dispatcher
 }
 
 async function writeSongDetails(details) {
