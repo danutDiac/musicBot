@@ -3,7 +3,7 @@ const ytpl = require('ytpl');
 const {variables: { application_id }} = require('./init')
 
 const MAX_LIST_LEGTH = 13
-const IDLE_WAIT_TIME = 1000 * 60 * 1
+const IDLE_WAIT_TIME = 1000 * 60 * 5
 const defaultStoreValues = {
   items: [],
   connection: null,
