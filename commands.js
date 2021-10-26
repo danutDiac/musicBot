@@ -3,12 +3,14 @@ const ytpl = require('ytpl');
 const {variables: { application_id }} = require('./init')
 
 const MAX_LIST_LEGTH = 13
+const IDLE_WAIT_TIME = 1000 * 60 * 1
 const defaultStoreValues = {
   items: [],
   connection: null,
   message: null,
   channel: null,
   lastSongMessage: null,
+  idleTrigger: null,
 }
 let globalStore = defaultStoreValues
 
@@ -64,6 +66,11 @@ const COMANDS = [{
     description: 'Îți zic ce știu sa fac. Cu subiect si predicat.',
     exec: listCommands
   },
+  {
+    name: 'test',
+    description: 'Secret. Doar developerii știu ce face asta. Sau nici ei.',
+    exec: test
+  },
 ]
 
 async function updateGlobalStore(message) {
@@ -98,8 +105,21 @@ async function joinChannel() {
 }
 
 async function playNext() {
-  globalStore.items.splice(0, 1)
-  await recurrentPlayItems()
+  if (globalStore.items.length > 0) {
+    return recurrentPlayItems()
+  }
+
+  globalStore.idleTrigger = setTimeout(graceouslyLeaveChannel, IDLE_WAIT_TIME)
+  return globalStore.message.channel.send('S-au terminat melodiile. Mai ai altceva?')
+}
+
+async function test() {
+  return globalStore.message.channel.send('Nu se testează nimic acum.')
+}
+
+async function graceouslyLeaveChannel() {
+  await globalStore.message.channel.send('Pare ca nu mai e nevoie de mine. Vă urez ok. Pa')
+  await globalStore.channel.leave()
 }
 
 async function play() {
@@ -144,6 +164,8 @@ async function recurrentPlayItems() {
       return
   }
 
+  resetIdleTimeout()
+
   const nextSong = globalStore.items[0]
   const songURL = nextSong.url.replace(/&list.*/, '')
 
@@ -162,26 +184,16 @@ async function recurrentPlayItems() {
   await writeSongDetails(nextSong.title)
   globalStore.items.splice(0, 1)
   
-  dispatcher.on('finish', async () => {
-      if (globalStore.items.length > 0) {
-          return recurrentPlayItems()
-      }
+  dispatcher.on('finish', playNext);
 
-      globalStore.connection.leave()
-  });
+  dispatcher.on('error', playNext);
 }
 
-async function handleSongPlay(songUrl) {
-  const info = await ytdl.getInfo(songUrl);
-  console.log('formats', info.formats)
-  const format = ytdl.chooseFormat(info.formats, {
-    filter: "audioonly",
-    quality: "highestaudio",
-  });
-  
-  
-  opus.pipe(dispatcher);
-  return dispatcher
+function resetIdleTimeout() {
+  if (globalStore.idleTrigger) {
+    clearTimeout(globalStore.idleTrigger)
+    globalStore.idleTrigger = null
+  }
 }
 
 async function writeSongDetails(details) {
