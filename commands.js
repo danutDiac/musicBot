@@ -227,7 +227,12 @@ function shuffle(array) {
 }
 
 async function reset() {
-  await disconnect()
+  try {
+    await disconnect()
+  } catch (err) {
+    console.log('Did not disconnect, err: ', err)
+  }
+
   globalStore = defaultStoreValues
 }
 
