@@ -120,6 +120,7 @@ async function test() {
 async function graceouslyLeaveChannel() {
   await globalStore.message.channel.send('Pare ca nu mai e nevoie de mine. Vă urez ok. Pa')
   await globalStore.channel.leave()
+  reset()
 }
 
 async function play() {
