@@ -187,7 +187,7 @@ async function recurrentPlayItems() {
   
   dispatcher.on('finish', playNext);
 
-  dispatcher.on('error', () => console.log('There was an error: ', err) || playNext());
+  dispatcher.on('error', (err) => console.log('There was an error: ', err) || playNext());
 }
 
 function resetIdleTimeout() {
