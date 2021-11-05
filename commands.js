@@ -11,6 +11,7 @@ const defaultStoreValues = {
   channel: null,
   lastSongMessage: null,
   idleTrigger: null,
+  errorMessage: null,
 }
 let globalStore = defaultStoreValues
 
@@ -137,7 +138,7 @@ async function play() {
       await playPlaylist({playlistUrl: playUrl})
       listCurrentSongs()
   } catch (err) {
-      console.log(`Didn't work: ${err}`)
+      writeError(err)
   }
 }
 
@@ -160,7 +161,7 @@ async function playPlaylist({playlistUrl}) {
       globalStore.items = list.items
       await recurrentPlayItems()
   } catch(err) {
-      console.log('Paylist error: ', err)
+      writeError(err)
   }
 }
 
@@ -236,7 +237,7 @@ async function reset() {
   try {
     await disconnect()
   } catch (err) {
-    console.log('Did not disconnect, err: ', err)
+    writeError(err)
   }
 
   globalStore = defaultStoreValues
@@ -248,6 +249,15 @@ async function listCommands() {
     commandsList = `${commandsList}\n\`${command.name}\` : ${command.description}`
   })
   globalStore.message.channel.send(commandsList)
+}
+
+async function writeError(error) {
+  console.log(`${globalStore.message} generated this error: ${error}`)
+  if (globalStore.errorMessage) {
+    globalStore.errorMessage.delete()
+  }
+  globalStore.errorMessage = await globalStore.message.channel.send(`Deci. Cum să zic. Cumva, n-a mers. S-a întâmplat o erroare:\n\`${error}\`\nO las aici **1minut** și apoi o sterg, că mi-e rușine.`)
+  setTimeout(() => globalStore.errorMessage.delete(), 60000)
 }
 
 module.exports = {
