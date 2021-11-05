@@ -37,20 +37,20 @@ const COMANDS = [{
     reply: 'Ia-o pe asta, poate-i mai bună.'
   },
   {
-    name: 'listează',
+    name: 'listeaza',
     description: `Ițî arăt următoarele ${MAX_LIST_LEGTH} melodii din listă.`,
     exec: listCurrentSongs,
     reply: 'Cam astea-s. Mai pot să le mix puțin. Scrie "zăpăcește-le" și se face.',
     replyCondition: globalStore.items > 0,
   },
   {
-    name: 'zăpăceste-le',
+    name: 'zapaceste-le',
     description: `Le tulbur puțin. O să iasă în altă ordine.`,
     exec: shuffleSongs,
     reply: 'Gata, le-am zăpăcit de le-a luat .. sunt în alta ordine acum.'
   },
   {
-    name: 'pleacă',
+    name: 'pleaca',
     description: 'Plec',
     exec: disconnect,
     reply: 'Hai pa.'
@@ -64,6 +64,11 @@ const COMANDS = [{
   {
     name: 'comenzi',
     description: 'Îți zic ce știu sa fac. Cu subiect si predicat.',
+    exec: listCommands
+  },
+  {
+    name: 'ajutor',
+    description: 'O altă comandă pentru listarea de comenzi.',
     exec: listCommands
   },
   {
