@@ -208,7 +208,7 @@ async function writeSongDetails(details) {
     await globalStore.lastSongMessage.delete()
   }
   
-  globalStore.lastSongMessage = await globalStore.message.channel.send(`Se cantă ${details}`)
+  globalStore.lastSongMessage = await globalStore.message.channel.send(`Se cântă ${details}`)
 }
 
 async function disconnect() {
