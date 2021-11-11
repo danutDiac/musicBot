@@ -105,8 +105,14 @@ async function interpretMessage(message) {
 }
 
 async function joinChannel() {
-  if (!globalStore.connection) {
-    globalStore.connection = await globalStore.channel.join()
+  try {
+    if (!globalStore.connection) {
+      globalStore.connection = await globalStore.channel.join()
+    } else {
+      globalStore.message.channel.send('Nu pot acum, sunt ocupat.')
+    }
+  } catch (err) {
+    writeError(err)
   }
 }
 
