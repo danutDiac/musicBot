@@ -105,13 +105,13 @@ async function interpretMessage(message) {
 }
 
 async function joinChannel() {
-  if (!globalStore.connection) {
-    try {
+  try {
+    if (!globalStore.connection) {
       globalStore.connection = await globalStore.channel.join()
-    } catch (err) {
-      console.log(err)
-      writeError(err)
-    }
+    } 
+  } catch (err) {
+    console.log(err)
+    writeError(err)
   }
 }
 
