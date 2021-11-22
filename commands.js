@@ -106,7 +106,12 @@ async function interpretMessage(message) {
 
 async function joinChannel() {
   if (!globalStore.connection) {
-    globalStore.connection = await globalStore.channel.join()
+    try {
+      globalStore.connection = await globalStore.channel.join()
+    } catch (err) {
+      console.log(err)
+      writeError(err)
+    }
   }
 }
 
@@ -203,7 +208,7 @@ function resetIdleTimeout() {
   }
 }
 
-async function writeSongDetails(details) {
+async function writeSongDetails(details)  {
   if (globalStore.lastSongMessage) {
     await globalStore.lastSongMessage.delete()
   }
