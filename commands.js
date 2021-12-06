@@ -125,7 +125,8 @@ async function playNext() {
 }
 
 async function test() {
-  return globalStore.message.channel.send('Nu se testează nimic acum.')
+  // return globalStore.message.channel.send('Nu se testează nimic acum.')
+  return globalStore.message.channel.send(JSON.stringify(globalStore.connection))
 }
 
 async function graceouslyLeaveChannel() {
