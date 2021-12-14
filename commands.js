@@ -218,6 +218,7 @@ async function writeSongDetails(details)  {
 }
 
 async function disconnect() {
+  globalStore.connection.disconnect()
   return globalStore.channel.leave()
 }
 
